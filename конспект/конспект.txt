@@ -1,0 +1,175 @@
+Команды	Сокращения	Описание
+Use	\u	Выбор базы данных
+Source	\.	Выполнение SQL-команд из файла
+System	\!	Выполнение команды операционной системы
+
+Status	\s	Вывод информации о состоиянии сервера
+Exit	\q	Выход
+	\G	Вертикальный вывод
+Например, Select * from mysql.user Limit 1\G
+
+Дамп
+Mysqldump <наименование базы>   >  <наименование файла> 
+Например
+mysqldump Example > Example2.sql
+
+развернуть дамп
+mysql <название бд> < <название файла>
+
+Основный команды
+
+Create Database shop; 'Создать бд shop
+
+show databases; 'показать бд
+
+show variables like 'datadir' ; -узнать путь к каталогу данных
+
+drop database shop; ' удалить бд shop
+
+show tables ; показать таблицы в бд - необходимо изначально выбрать бд через команду use shop;
+или
+show tables from shop;
+
+
+создание таблицы
+Create table (
+имя_столбца параметры,
+имя_столбца параметры
+) 
+
+Например
+Create table users (k int);
+или
+Create table if not exists users (k int); - не выдаст ошибку, если таблица была создана раньше
+
+
+describe users; - показывает описание таблицы
+
+create table tbl ('create' int) - в случае если столбец имеет такое же название как и команда необходимо использовать ковычки
+
+ТИПы данных
+числовые,  строковые, NULL, календарные, коллекции
+
+Типы могут сопровождаться атрибутами - NULL и NOT NULL, Default (значение устанавливается по умолчанию), unsigned - неотрицательное число
+
+Числовые 
+целые- tinyint, smallint, mediumint, int, bigint
+вещественные - float, double
+точные - decimal
+
+Create table tbl (id int(8));  используем 8 символов с типом int
+
+insert into tbl values (5); - вставляем значение 5
+
+Create table tbl (id int(8) zerofill);  insert into tbl values (5); - получим результат 00000005
+
+create table tbl (price decimal (7,4)); insert into tbl values (111,2); - возможно ставить число по 7 знаков всего и 4 после запятой
+
+Строковые
+Фиксированные -  char
+Переменные -  varchar
+blob - tinytext, text, mediumtext, longtext
+
+drop table if exists tbl;
+create table tbl (
+name char(10) Default 'anonim', - используем 10 сивмолов, значение по умолчанию anonim
+description varchar(255) #максимально возможное количество символов 255
+);
+INSERT INTO tbl values (default, 'новый')
+select * from tbl;
+
+drop table if exists tbl;
+create table tbl (
+id int insigned
+) comment = 'тут пишется коммент'.  -id не отрицательные и также можно использовать комментарий
+
+если есть потребность не удалять бд а преобразовать то используется
+alter table tbl change id id int unsigned not null; 
+1(alter table) 2(tbl) 3(change id) 4(id int unsigned not null); 1 - ключевое выражение для преобразование, 2 - таблица, 3 - что меняем, 4 - на что меняем
+
+truncate tbl; -  очистить таблицу
+
+drop table if exists tbl;
+create table tbl (
+dateCreate Datetime Default Current_timestamp  - если дата не заполнена, то по умолчанию используем текущую
+dateUpdate datetime default Current_timestamp  on update - поле обновляется при вставке или обновлении записи
+)
+
+Current_timestamp = now()
+
+ИНДЕКСЫ
+drop table if exists tbl;
+create table tbl (
+id int unsigned not null primary key -  айди сделали первичным ключем
+)
+или
+drop table if exists tbl;
+create table tbl (
+id int unsigned not null
+primary key(id)
+)
+
+drop table if exists tbl;
+create table tbl (
+id int unsigned not null primary key  auto_increment -  индекс автоматически создается
+)
+
+
+serial = bigint unsigned not null auto_increment unique
+
+drop table if exists tbl;
+create table tbl (
+id serial primary key
+catalog_id int insigned
+key index_of_catalog_id(catalog_id) - проиндексировали поле каталог-айди
+)
+
+create index index_of_catalog_id on tbl (catalog_id) -  создать индекс в готовой таблице
+
+create index index_of_catalog_id using btree / hash on tbl (catalog_id) -  можно указать способ работы индекса
+
+
+многострочная вставка
+insert into catalogs values
+(null, '123'),
+(null, '423'),
+(null, '173');
+
+delete from tbl; - удаляет все или часть из таблицы
+truncate tbl; - удаляет все
+ delete from tbl limit 2;  - удаляется 2 записи
+
+ЗАмена записей
+
+update 
+tbl
+set
+name = '123'
+where
+name = '432';
+меняет 432 на 123
+
+вставить выбранное
+
+insert into
+tbl
+select
+*
+from
+users;
+
+После наполнения рандомными данными, иногда есть необходимость перемешать данные. Для этого можно воспользоваь следующим запросом
+
+Create temporary table sex (sex Char(1)); ' создаем временную таблицу
+insert into sex values ('m'), ('f');  
+update profiles Set sex = (Select sex  from sex order by rand() limit 1); ' set = установить значение в колонке sex
+
+rand() - генерит дробное случайное число от 0 до 1
+floor() - обрезает дробную часть
+concat - склеивает слова
+
+ Изменить тип данных
+alter table media modify column metadata JSON;
+
+
+
