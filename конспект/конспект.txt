@@ -172,4 +172,104 @@ concat - склеивает слова
 alter table media modify column metadata JSON;
 
 
+Урок 5 - работа в select
 
+between - возвращает тру если значение находится в указанном диапазоне
+
+Select * from catalogs where id between 3 and 4;
+
+Или 
+
+Select * from catalogs where id not between 3 and 4;
+
+In - можно указать список, если число есть в списке, то тру иначе false
+
+Select * from catalogs where id in (1, 2 ,5)
+
+Если в списке есть null, то возвращаться будет null
+
+Like - тоже самое что и и равно, но он обладает спецсимволами:
+% заменяет любое количество символов или их отсутствие
+_ заменяет ровно один символ
+
+RLIKE и REGEXP - регулярные выражения
+^грам - выражение начинается на грамм
+тон% - выражение заканчивается на тон
+| - логическое или - например 	'abc' RLIKE 'abc|asd' - это true
+[abc] - классы символов - поиск происходит по символам заключенным в скобках
+[а-я] - можно указать последовательность
+существуют также специальные классы, например '[[:digit:]]'
+Квантификаторы
+? - символ входит ноль или один раз
+* - любое количество вхождений, включая ноль
++ - одно или более вхождений символа в строку
+Специальные знаки такие как . Разделяются через \
+
+Сортировка
+Выполняется через команду ORDER BY <столбец>
+Если нужна обратная сортировка, то добавляется команда desc
+Чтобы вывести определенное количество записей можно использовать limit
+Limit 2 - выводит первые 2 записи
+Limit 2, 2  - выводит 2 записи после 2ой
+Limit 4, 2 - выводит 2 записи после 4ой
+Можно также записать limit 2 offset 4 - с 4ой выводит 2 записи
+Distinct - выводит только уникальный результат
+Select distinct ....
+Unix_timestamp - преобразовывает дату в число
+from_unixtime - из числа в дату
+to_days - преобразовывает дату в дни
+Если делить на количество дней, чтобы посчитать года, то не стоит забывать о високосном годе - необходимо делить на 365,25
+Timestampdiff - специальная функция подсчета разницы между датами
+
+Select * from users order by rand() - записи выводятся в случайном порядке
+
+
+JSON и нормальная запись
+Нормальная:
+Create tables distances (
+Id serial primary key,
+X1 int not null,
+Y1 int not null,
+X2 int not null,
+Y2 int not null,
+Distance double as (sqrt(pow(x1 - x2,2) + pow(y1 - y2, 2)))
+);
+
+JSON:
+
+Create tables distances (
+Id serial primary key,
+a json not null,
+b json not null,
+Distance double as (sqrt(pow(a->>'$.x' - b->>'$.x',2) + pow(a-->'$.y' - b-->'$.y', 2)))
+);
+
+Round - округление до ближайшего целого числа
+Substring - разрезать строку - например substring(name,1 , 5) - получаем первые 5 символов
+
+If - (логическое выражение, что выводится если тру, что выводится если ложь)
+Select name, if (timestampdiff(Year, birthday_at, now()) >= 18, 'совершеннолетний', 'несовершеннолетний') as status from users
+Вывод - новый столбец с указанием статуса совершеннолетия пользователей
+
+Case - похож на иф в vba
+Select case
+	when color = 'red' then 'красный'
+	when color = 'orange' then 'оранжевый'
+	when color = 'green' then 'зеленый'
+	else 'фиолетовый'
+	end as Russian
+	from
+	colors;
+Inet_aton - принимает ip adress
+
+ГРУППИРОВКА ДАННЫХ
+Group by - группировка по столбцу
+Select Count(*) as total, decade from users group by decade; - получаем количество пользователей родившихся в десятилетие
+Group_concat - возможно посмотреть содержимое группы
+В group_concat есть разделитель, например Group_concat(name separator ' ')
+Having - аналог where, но для сгруппированных данных
+
+Alter table products_new rename products; - переименовали таблицу
+Any_Value - возвращает случайное значение из группы
+
+В конце запроса можно написать with rollup - добавим автосумму
