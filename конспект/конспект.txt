@@ -332,3 +332,17 @@ References catalogs (id)
 On delete no action
 In update no action;
 
+Урок 8
+Помимо добавления внешнего ключа можно также указать ограничение. Оно необходимо чтобы добавить имя внешнему ключу.
+Например добавим внешний ключ с ограничением в таблицу profiles
+
+Alter table profiles
+Add constraint profiles_user_id_fk
+Foreign key (user_id) references users(id)
+On delete cascade,
+Add constraint profiles_photo_id_fk
+Foreign key (photo_id) references media(id)
+On delete set NULL;
+
+Cross join работает также как и декартовой произведение при использовании нескольких таблиц
+
